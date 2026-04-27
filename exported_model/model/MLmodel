@@ -1,0 +1,32 @@
+flavors:
+  python_function:
+    cloudpickle_version: 2.0.0
+    python_version: 3.13.4
+    serialized_model: model.pkl
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    sklearn_version: 1.7.1
+metadata:
+  artifact_path: model
+  created_time: 1700000000000
+  end_time: 1700000000000
+  entry_point_name: null
+  experiment_id: '1'
+  backend: null
+  registry_uri: null
+  user_id: user
+  run_id: exported
+  artifact_uri: null
+  run_name: exported_model
+  signature: null
+  source_type: LOCAL
+  source_name: notebook
+  tags: {}
+  models: {}
+  inputs: null
+  outputs: null
+  model_uuid: exported
+  model_size_bytes: 0
+utc_time_created: '2024-01-01T00:00:00.000000Z'
+model_uuid: exported
