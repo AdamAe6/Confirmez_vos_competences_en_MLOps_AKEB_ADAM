@@ -79,12 +79,18 @@ def log_prediction(input_data: dict, prediction: int, probability: float, execut
         except Exception as e:
             logger.error(f"❌ Erreur MongoDB: {e}")
     
-    # Sauvegarder dans un fichier log JSON
+    # Sauvegarder dans un fichier log JSON (safe serialization)
     log_file = LOGS_DIR / f"predictions_{datetime.now().strftime('%Y%m%d')}.jsonl"
     with open(log_file, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
-    
-    return log_entry
+        f.write(json.dumps(log_entry, default=str) + '\n')
+
+    # Retourner une copie nettoyée (convertit ObjectId/datetime/numpy en str/nombre)
+    try:
+        sanitized = json.loads(json.dumps(log_entry, default=str))
+    except Exception:
+        sanitized = {k: str(v) for k, v in log_entry.items()}
+
+    return sanitized
 
 
 def predict_score(ext_source_3, ext_source_2, amt_req_credit_bureau_day,
