@@ -2,8 +2,6 @@ name: CI/CD - API Scoring
 
 on:
     push:
-        branches: [ main, feature/* ]
-    pull_request:
         branches: [ main ]
 
 jobs:
@@ -34,11 +32,7 @@ jobs:
             - name: Run tests
               run: |
                   pytest tests/ -v --tb=short
-
-            - name: Test API can start
-              run: |
-                  timeout 10 python app.py > /dev/null 2>&1 || true
-              continue-on-error: true
+                        # (tests only)
 
     build:
         needs: test
@@ -63,18 +57,3 @@ jobs:
               run: |
                   docker build -t api-scoring:test .
                   echo "✅ Docker image built successfully"
-
-    deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-        steps:
-            - uses: actions/checkout@v3
-
-            - name: Deploy notification
-              run: |
-                  echo "🚀 Pipeline CI/CD exécuté avec succès"
-                  echo "✅ Tests passés"
-                  echo "✅ Image Docker créée"
-                  echo "📝 Note: Déploiement réel à configurer selon votre infrastructure"
