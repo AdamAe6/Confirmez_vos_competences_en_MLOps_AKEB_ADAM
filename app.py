@@ -79,6 +79,11 @@ def log_prediction(input_data: dict, prediction: int, probability: float, execut
         except Exception as e:
             logger.error(f"❌ Erreur MongoDB: {e}")
     
+    # Sauvegarder dans un fichier log JSON
+    log_file = LOGS_DIR / f"predictions_{datetime.now().strftime('%Y%m%d')}.jsonl"
+    with open(log_file, 'a') as f:
+        f.write(json.dumps(log_entry) + '\n')
+    
     return log_entry
 
 
@@ -388,8 +393,11 @@ with gr.Blocks(title="API de Scoring - Prêt à Dépenser") as demo:
     ### 📝 Informations
     - **Modèle**: XGBoost avec 128 features
     - **Performance**: AUC = 0.7564, Accuracy = 69.63%
+    - **Interface**: Les 20 features les plus importantes sont affichées
     - **Logging**: Chaque prédiction est pushée dans MongoDB Atlas
-    - **Status**: MongoDB ✅ Connecté
+    - **Risque BAS**: Probabilité < 30%
+    - **Risque MOYEN**: Probabilité 30-50%
+    - **Risque ÉLEVÉ**: Probabilité > 50%
     """)
 
 
