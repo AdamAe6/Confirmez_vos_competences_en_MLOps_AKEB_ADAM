@@ -10,6 +10,16 @@ numpy>=1.24.0
 pandas>=2.0.0
 cloudpickle>=2.0.0
 
+# Monitoring et Visualisation (ETAPE 3)
+streamlit>=1.20.0
+plotly>=5.10.0
+
+# MongoDB (ETAPE 3 - Stockage des logs)
+pymongo>=4.0.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
 # Testing
 pytest>=7.0.0
 pytest-cov>=4.0.0
