@@ -31,6 +31,9 @@ LOGS_DIR.mkdir(exist_ok=True)
 
 # MongoDB Configuration
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+# DB/collection (doivent matcher côté dashboard)
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "perso")
+MONGO_COLLECTION_PREDICTIONS = os.getenv("MONGO_COLLECTION_PREDICTIONS", "predictions")
 mongo_client = None
 mongo_db = None
 
@@ -40,8 +43,8 @@ def init_mongodb():
     try:
         mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         mongo_client.admin.command('ping')
-        mongo_db = mongo_client['perso']
-        logger.info("✅ MongoDB connecté")
+        mongo_db = mongo_client[MONGO_DB_NAME]
+        logger.info(f"✅ MongoDB connecté (db={MONGO_DB_NAME})")
         return True
     except Exception as e:
         logger.warning(f"⚠️ MongoDB non disponible: {e}")
@@ -74,8 +77,8 @@ def log_prediction(input_data: dict, prediction: int, probability: float, execut
     # Use explicit comparison with None to avoid TypeError
     if mongo_db is not None:
         try:
-            mongo_db['predictions'].insert_one(log_entry)
-            logger.info(f"✅ Log pushé dans MongoDB")
+            mongo_db[MONGO_COLLECTION_PREDICTIONS].insert_one(log_entry)
+            logger.info(f"✅ Log pushé dans MongoDB (db={MONGO_DB_NAME}, coll={MONGO_COLLECTION_PREDICTIONS})")
         except Exception as e:
             logger.error(f"❌ Erreur MongoDB: {e}")
     

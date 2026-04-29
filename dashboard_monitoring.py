@@ -14,8 +14,9 @@ from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
 
-# Collection par défaut
-MONGO_COLLECTION_PREDICTIONS = 'predictions'
+# DB/collection par défaut (surchargées par variables d'env)
+DEFAULT_MONGO_DB_NAME = 'perso'
+DEFAULT_MONGO_COLLECTION_PREDICTIONS = 'predictions'
 
 st.set_page_config(page_title="Monitoring API - Prêt à Dépenser", layout="wide")
 
@@ -50,6 +51,8 @@ def load_logs_from_db(limit=10000):
     """Charger les logs depuis MongoDB en se connectant directement via MONGO_URI"""
     try:
         MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
+        db_name_env = os.getenv('MONGO_DB_NAME')
+        collection_name = os.getenv('MONGO_COLLECTION_PREDICTIONS', DEFAULT_MONGO_COLLECTION_PREDICTIONS)
         client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         # ping
         client.admin.command('ping')
@@ -64,12 +67,14 @@ def load_logs_from_db(limit=10000):
             except Exception:
                 db_name = None
 
-        # fallback vers 'perso' si non trouvé
+        # fallback vers MONGO_DB_NAME (prioritaire) sinon défaut
+        if db_name_env:
+            db_name = db_name_env
         if not db_name:
-            db_name = os.getenv('MONGO_DB_NAME', 'perso')
+            db_name = DEFAULT_MONGO_DB_NAME
 
         db = client[db_name]
-        coll = db[MONGO_COLLECTION_PREDICTIONS]
+        coll = db[collection_name]
 
         docs = list(coll.find().limit(limit).sort('timestamp', -1))
         if not docs:
@@ -100,7 +105,13 @@ def load_logs_from_db(limit=10000):
 
         return df
     except Exception as e:
-        st.error(f"❌ Erreur lors du chargement depuis MongoDB: {e}")
+        st.error(
+            "❌ Erreur lors du chargement depuis MongoDB.\n\n"
+            f"- MONGO_URI: {os.getenv('MONGO_URI', '(non défini)')}\n"
+            f"- MONGO_DB_NAME: {os.getenv('MONGO_DB_NAME', DEFAULT_MONGO_DB_NAME)}\n"
+            f"- MONGO_COLLECTION_PREDICTIONS: {os.getenv('MONGO_COLLECTION_PREDICTIONS', DEFAULT_MONGO_COLLECTION_PREDICTIONS)}\n\n"
+            f"Détail: {e}"
+        )
         return None
 
 
